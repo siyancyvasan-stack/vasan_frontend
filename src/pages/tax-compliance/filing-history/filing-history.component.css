@@ -1,0 +1,4 @@
+
+.pagination-item:disabled {
+  cursor: default;
+}

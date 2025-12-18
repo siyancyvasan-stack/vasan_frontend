@@ -1,0 +1,62 @@
+<div class="fixed inset-0 bg-black/50 z-40" (click)="close.emit()"></div>
+
+<div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-2xl z-50 w-full max-w-2xl">
+  <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+    <h2 class="text-xl font-semibold text-gray-800">{{ isEditMode() ? 'Edit Employee Profile' : 'Add New Employee' }}</h2>
+    <button (click)="close.emit()" class="text-gray-400 hover:text-gray-600">
+      <i class="fa-solid fa-xmark fa-lg"></i>
+    </button>
+  </div>
+  <div class="p-8 max-h-[70vh] overflow-y-auto">
+    <form (ngSubmit)="onSave()" #employeeForm="ngForm" class="space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="name" class="block text-sm font-medium text-gray-700">Full Name</label>
+          <input type="text" id="name" name="name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
+                 [ngModel]="employeeData().name" (ngModelChange)="updateField('name', $event)" required>
+        </div>
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
+          <input type="email" id="email" name="email" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
+                 [ngModel]="employeeData().email" (ngModelChange)="updateField('email', $event)" required>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="jobTitle" class="block text-sm font-medium text-gray-700">Job Title</label>
+          <input type="text" id="jobTitle" name="jobTitle" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
+                 [ngModel]="employeeData().jobTitle" (ngModelChange)="updateField('jobTitle', $event)">
+        </div>
+        <div>
+          <label for="department" class="block text-sm font-medium text-gray-700">Department</label>
+          <input type="text" id="department" name="department" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
+                 [ngModel]="employeeData().department" (ngModelChange)="updateField('department', $event)">
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="salaryStructure" class="block text-sm font-medium text-gray-700">Salary Structure</label>
+          <input type="text" id="salaryStructure" name="salaryStructure" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
+                 [ngModel]="employeeData().salaryStructure" (ngModelChange)="updateField('salaryStructure', $event)">
+        </div>
+         <div>
+          <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+          <select id="status" name="status" class="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
+                 [ngModel]="employeeData().status" (ngModelChange)="updateField('status', $event)">
+            <option>Active</option>
+            <option>On Leave</option>
+            <option>Terminated</option>
+          </select>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="p-6 bg-gray-50/70 rounded-b-lg flex justify-end gap-3">
+    <button type="button" (click)="close.emit()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50">
+      Cancel
+    </button>
+    <button type="button" (click)="onSave()" [disabled]="!employeeForm.valid" class="px-4 py-2 text-sm font-medium text-white bg-cyan-600 rounded-md shadow-sm hover:bg-cyan-700 disabled:bg-cyan-300">
+      {{ isEditMode() ? 'Save Changes' : 'Add Employee' }}
+    </button>
+  </div>
+</div>

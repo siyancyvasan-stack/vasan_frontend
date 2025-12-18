@@ -1,0 +1,12 @@
+
+<div class="flex items-center justify-around">
+  <div #chart class="w-[200px] h-[200px]"></div>
+  <div class="space-y-3">
+    @for(item of data; track item.category) {
+      <div class="flex items-center">
+        <span class="w-3 h-3 rounded-full mr-2" [style.background-color]="item.color"></span>
+        <span class="text-sm text-gray-600">{{ item.category }}</span>
+      </div>
+    }
+  </div>
+</div>

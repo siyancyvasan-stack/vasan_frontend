@@ -1,0 +1,49 @@
+
+<div class="fixed inset-0 bg-black/50 z-40" (click)="close.emit()"></div>
+
+<div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-2xl z-50 w-full max-w-lg">
+  <div class="p-5 border-b border-gray-200 flex justify-between items-center">
+    <h2 class="text-xl font-semibold text-gray-800">Submission Receipt</h2>
+    <button (click)="close.emit()" class="text-gray-400 hover:text-gray-600">
+      <i class="fa-solid fa-xmark fa-lg"></i>
+    </button>
+  </div>
+  <div class="p-6 space-y-4">
+    <div class="flex justify-between items-center bg-gray-50 p-3 rounded-md">
+        <span class="text-sm font-medium text-gray-600">Confirmation #</span>
+        <span class="font-mono text-sm text-gray-800">{{ submission().confirmation || 'N/A' }}</span>
+    </div>
+
+    <div class="grid grid-cols-2 gap-x-4 gap-y-3 pt-2">
+        <div class="text-sm">
+            <p class="text-gray-500">Tax Name</p>
+            <p class="font-semibold text-gray-800">{{ submission().taxName }}</p>
+        </div>
+        <div class="text-sm">
+            <p class="text-gray-500">Filing Period</p>
+            <p class="font-semibold text-gray-800">{{ submission().filingPeriod }}</p>
+        </div>
+        <div class="text-sm">
+            <p class="text-gray-500">Submission Date</p>
+            <p class="font-semibold text-gray-800">{{ submission().submissionDate | date:'longDate' || 'N/A' }}</p>
+        </div>
+        <div class="text-sm">
+            <p class="text-gray-500">Due Date</p>
+            <p class="font-semibold text-gray-800">{{ submission().dueDate | date:'longDate' }}</p>
+        </div>
+        <div class="text-sm">
+            <p class="text-gray-500">Amount Paid</p>
+            <p class="font-semibold text-gray-800">{{ submission().amount | currency:submission().currency:'symbol':'1.2-2' || 'N/A' }}</p>
+        </div>
+        <div class="text-sm">
+            <p class="text-gray-500">Status</p>
+            <p class="font-semibold" [class.text-green-600]="submission().status === 'Accepted'" [class.text-blue-600]="submission().status === 'Submitted'">{{ submission().status }}</p>
+        </div>
+    </div>
+  </div>
+  <div class="p-4 bg-gray-50/70 rounded-b-lg flex justify-end gap-3">
+    <button type="button" (click)="close.emit()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50">
+      Close
+    </button>
+  </div>
+</div>

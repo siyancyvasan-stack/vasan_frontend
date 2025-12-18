@@ -1,0 +1,81 @@
+
+<div class="space-y-8">
+  <!-- KPI Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="bg-white p-6 rounded-lg shadow-md">
+      <div class="flex items-center">
+        <div class="flex-shrink-0 bg-purple-100 rounded-md p-3">
+          <i class="fa-solid fa-hourglass-half text-purple-500 text-xl"></i>
+        </div>
+        <div class="ml-4">
+          <p class="text-sm font-medium text-gray-500">Pending Approval</p>
+          <p class="text-2xl font-bold text-gray-800">$1,450.75</p>
+          <p class="text-xs text-gray-400">12 expense reports</p>
+        </div>
+      </div>
+    </div>
+    <div class="bg-white p-6 rounded-lg shadow-md">
+      <div class="flex items-center">
+        <div class="flex-shrink-0 bg-cyan-100 rounded-md p-3">
+          <i class="fa-solid fa-wallet text-cyan-500 text-xl"></i>
+        </div>
+        <div class="ml-4">
+          <p class="text-sm font-medium text-gray-500">Total Expenses (This Month)</p>
+          <p class="text-2xl font-bold text-gray-800">$12,834.00</p>
+          <p class="text-xs text-gray-400">August 2024</p>
+        </div>
+      </div>
+    </div>
+    <div class="bg-white p-6 rounded-lg shadow-md">
+      <div class="flex items-center">
+        <div class="flex-shrink-0 bg-pink-100 rounded-md p-3">
+          <i class="fa-solid fa-triangle-exclamation text-pink-500 text-xl"></i>
+        </div>
+        <div class="ml-4">
+          <p class="text-sm font-medium text-gray-500">Policy Violations</p>
+          <p class="text-2xl font-bold text-gray-800">3</p>
+          <p class="text-xs text-gray-400">Require review</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Expense Submissions -->
+  <div class="bg-white p-6 rounded-lg shadow-md">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-lg font-semibold text-gray-700">Recent Expense Submissions</h2>
+      <button class="px-4 py-2 text-sm font-medium text-white bg-cyan-600 rounded-md hover:bg-cyan-700">
+        Submit New Expense
+      </button>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            <th scope="col" class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          @for(expense of recentExpenses; track expense.date + expense.employee) {
+            <tr>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ expense.date }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ expense.employee }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ expense.amount }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" [class]="getStatusClass(expense.status)">
+                  {{ expense.status }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

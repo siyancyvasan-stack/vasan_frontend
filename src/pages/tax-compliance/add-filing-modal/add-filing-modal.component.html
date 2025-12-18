@@ -1,0 +1,97 @@
+
+<div class="fixed inset-0 bg-black/50 z-40" (click)="close.emit()"></div>
+
+<div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-2xl z-50 w-full max-w-2xl">
+  <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+    <h2 class="text-xl font-semibold text-gray-800">Add New Tax Filing</h2>
+    <button (click)="close.emit()" class="text-gray-400 hover:text-gray-600">
+      <i class="fa-solid fa-xmark fa-lg"></i>
+    </button>
+  </div>
+  <div class="p-8">
+    <form #filingForm="ngForm" class="space-y-6">
+      <div>
+        <label for="filingName" class="block text-sm font-medium text-gray-700">Filing Name</label>
+        <input type="text" id="filingName" name="filingName"
+               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
+               [ngModel]="newFiling().filingName"
+               (ngModelChange)="updateField('filingName', $event)">
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="country" class="block text-sm font-medium text-gray-700">Country</label>
+          <input type="text" id="country" name="country"
+                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
+                 [ngModel]="newFiling().country"
+                 (ngModelChange)="updateField('country', $event)">
+        </div>
+        <div>
+          <label for="filingPeriod" class="block text-sm font-medium text-gray-700">Filing Period</label>
+          <input type="text" id="filingPeriod" name="filingPeriod" placeholder="e.g., Q4 2024"
+                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
+                 [ngModel]="newFiling().filingPeriod"
+                 (ngModelChange)="updateField('filingPeriod', $event)">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div>
+          <label for="amount" class="block text-sm font-medium text-gray-700">Amount</label>
+          <input type="number" id="amount" name="amount"
+                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
+                 [ngModel]="newFiling().amount"
+                 (ngModelChange)="updateAmount($event)">
+        </div>
+        <div>
+          <label for="currency" class="block text-sm font-medium text-gray-700">Currency</label>
+          <input type="text" id="currency" name="currency"
+                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
+                 [ngModel]="newFiling().currency"
+                 (ngModelChange)="updateField('currency', $event)">
+        </div>
+        <div class="relative">
+          <label for="dueDate" class="block text-sm font-medium text-gray-700">Due Date</label>
+          <input type="date" id="dueDate" name="dueDate" placeholder="mm/dd/yyyy"
+                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
+                 [ngModel]="newFiling().dueDate"
+                 (ngModelChange)="updateField('dueDate', $event)">
+          <i class="fa-regular fa-calendar absolute top-9 right-3 text-gray-400 pointer-events-none"></i>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="riskLevel" class="block text-sm font-medium text-gray-700">Risk Level</label>
+          <select id="riskLevel" name="riskLevel"
+                  class="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
+                  [ngModel]="newFiling().riskLevel"
+                  (ngModelChange)="updateField('riskLevel', $event)">
+            <option>Low</option>
+            <option>Medium</option>
+            <option>High</option>
+          </select>
+        </div>
+        <div>
+          <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+          <select id="status" name="status"
+                  class="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
+                  [ngModel]="newFiling().status"
+                  (ngModelChange)="updateField('status', $event)">
+            <option>Pending</option>
+            <option>In Progress</option>
+            <option>Submitted</option>
+          </select>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="p-6 bg-gray-50/70 rounded-b-lg flex justify-end gap-3">
+    <button type="button" (click)="close.emit()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
+      Cancel
+    </button>
+    <button type="button" (click)="onSave()" class="px-4 py-2 text-sm font-medium text-white bg-cyan-600 rounded-md shadow-sm hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
+      Save Filing
+    </button>
+  </div>
+</div>

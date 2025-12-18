@@ -1,0 +1,12 @@
+
+<div class="space-y-4">
+  @for(item of data; track item.category) {
+    <div class="grid grid-cols-[80px_1fr] items-center gap-4">
+      <span class="text-sm font-medium text-gray-600 text-right">{{ item.category }}</span>
+      <div class="w-full bg-gray-200 rounded-full h-5 relative">
+        <div class="bg-gray-200 h-5 rounded-full" [style.width.%]="item.budget"></div>
+        <div class="bg-cyan-500 h-5 rounded-full absolute top-0 left-0" [style.width.%]="item.actual"></div>
+      </div>
+    </div>
+  }
+</div>

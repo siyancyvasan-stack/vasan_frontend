@@ -1,0 +1,13 @@
+
+<div class="fixed bottom-5 right-5 z-50 flex items-center p-4 w-full max-w-xs bg-white rounded-lg shadow-lg border-l-4 animate-fade-in-up" [class]="colorClasses" role="alert">
+    <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-lg" [class]="colorClasses">
+        <i [class]="iconClass"></i>
+    </div>
+    <div class="ml-3 text-sm font-medium">
+        {{ message() }}
+    </div>
+    <button type="button" (click)="close.emit()" class="ml-auto -mx-1.5 -my-1.5 bg-transparent text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-200/50 inline-flex h-8 w-8 transition-colors" aria-label="Close">
+        <span class="sr-only">Close</span>
+        <i class="fa-solid fa-xmark"></i>
+    </button>
+</div>

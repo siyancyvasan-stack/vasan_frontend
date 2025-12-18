@@ -1,0 +1,46 @@
+
+<div class="fixed inset-0 bg-black/50 z-40" (click)="close.emit()"></div>
+
+<div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-2xl z-50 w-full max-w-2xl">
+  <div class="p-5 border-b border-gray-200 flex justify-between items-center">
+    <h2 class="text-xl font-semibold text-gray-800">Upcoming Filing Deadlines</h2>
+    <button (click)="close.emit()" class="text-gray-400 hover:text-gray-600">
+      <i class="fa-solid fa-xmark fa-lg"></i>
+    </button>
+  </div>
+  <div class="p-6 max-h-[60vh] overflow-y-auto">
+    @if (upcomingDeadlines().length > 0) {
+      <ul class="space-y-3">
+        @for (deadline of upcomingDeadlines(); track deadline.id) {
+          <li class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+            <div>
+              <p class="font-semibold text-gray-800">{{ deadline.taxName }}</p>
+              <p class="text-sm text-gray-500">{{ deadline.filingPeriod }}</p>
+            </div>
+            <div class="text-right">
+              <p class="font-medium text-red-600">{{ deadline.dueDate | date:'longDate' }}</p>
+              <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full mt-1 inline-block"
+                    [class.bg-orange-100]="deadline.status === 'Due'"
+                    [class.text-orange-800]="deadline.status === 'Due'"
+                    [class.bg-yellow-100]="deadline.status === 'Processing'"
+                    [class.text-yellow-800]="deadline.status === 'Processing'">
+                {{ deadline.status }}
+              </span>
+            </div>
+          </li>
+        }
+      </ul>
+    } @else {
+      <div class="text-center py-10">
+        <i class="fa-solid fa-calendar-check text-4xl text-green-400"></i>
+        <h3 class="mt-4 text-lg font-semibold text-gray-700">All caught up!</h3>
+        <p class="mt-1 text-sm text-gray-500">There are no upcoming deadlines.</p>
+      </div>
+    }
+  </div>
+  <div class="p-4 bg-gray-50/70 rounded-b-lg flex justify-end">
+    <button type="button" (click)="close.emit()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50">
+      Close
+    </button>
+  </div>
+</div>

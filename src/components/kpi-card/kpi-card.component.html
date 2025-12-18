@@ -1,0 +1,22 @@
+
+<div class="bg-white p-6 rounded-lg shadow-md relative h-full">
+    <div class="absolute top-4 right-4">
+        <span class="text-xs font-semibold px-2 py-1 rounded-full" [class]="changeColorClass">
+          <i class="fa-solid" [class]="changeType() === 'positive' ? 'fa-arrow-up' : (changeType() === 'negative' ? 'fa-arrow-down' : 'hidden')"></i>
+          {{ change() }}
+        </span>
+    </div>
+
+    <div class="flex items-center gap-4">
+        <div class="w-12 h-12 flex items-center justify-center rounded-lg flex-shrink-0" [class]="iconBgClass">
+           <i [class]="icon() + ' text-xl ' + iconColorClass"></i>
+        </div>
+        <div>
+            <p class="text-sm font-medium text-gray-500 uppercase">{{ title() }}</p>
+            <p class="text-3xl font-bold text-gray-800 mt-1">{{ value() }}</p>
+            @if (subtitle()) {
+                <p class="text-xs text-gray-400 mt-1">{{ subtitle() }}</p>
+            }
+        </div>
+    </div>
+</div>

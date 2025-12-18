@@ -1,0 +1,96 @@
+
+<div class="bg-white p-6 rounded-lg shadow-sm">
+  <!-- Header and Filters -->
+  <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+    <h2 class="text-xl font-bold text-gray-800">Tax Forms Library</h2>
+    <div class="flex items-center gap-2 w-full md:w-auto">
+      <div class="relative flex-grow">
+        <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+        <input 
+          type="text" 
+          placeholder="Search forms..." 
+          class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-shadow"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)">
+      </div>
+      <select 
+        class="border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-shadow"
+        [ngModel]="jurisdictionFilter()"
+        (ngModelChange)="jurisdictionFilter.set($event)">
+        <option value="All">All Jurisdictions</option>
+        <option value="Federal">Federal</option>
+        <option value="State">State</option>
+      </select>
+      <select 
+        class="border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-shadow"
+        [ngModel]="categoryFilter()"
+        (ngModelChange)="categoryFilter.set($event)">
+        <option value="All">All Categories</option>
+        <option value="Payroll">Payroll</option>
+        <option value="Income Tax">Income Tax</option>
+        <option value="Contractor">Contractor</option>
+      </select>
+      <button (click)="handleGenerateNewForm()" class="px-4 py-2 text-sm font-medium text-white bg-cyan-600 rounded-lg hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transition-all shadow-sm flex-shrink-0">
+        <i class="fa-solid fa-plus mr-2"></i>Generate New Form
+      </button>
+    </div>
+  </div>
+
+  <!-- Forms List -->
+  <div class="space-y-4">
+    @if(filteredForms().length > 0) {
+      @for(form of filteredForms(); track form.name) {
+        <div class="p-4 border border-gray-200 rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center hover:shadow-md hover:border-cyan-200 transition-all duration-300">
+          <div class="mb-4 md:mb-0">
+            <p class="font-bold text-gray-800">{{ form.name }}</p>
+            <p class="text-sm text-gray-600">{{ form.title }}</p>
+            <div class="mt-2 flex gap-2">
+              <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800">{{ form.jurisdiction }}</span>
+              <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full" [class]="getCategoryClass(form.category)">{{ form.category }}</span>
+            </div>
+          </div>
+          <div class="flex gap-2 flex-shrink-0">
+            <button (click)="handleGenerateForm(form)" class="px-3 py-1.5 text-sm font-medium text-white bg-cyan-600 rounded-md hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transition-colors">
+              <i class="fa-solid fa-cogs mr-1.5"></i> Generate
+            </button>
+            <button (click)="handlePreviewForm(form)" class="px-3 py-1.5 text-sm font-medium text-purple-700 bg-purple-50 border border-purple-200 rounded-md hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors">
+              <i class="fa-solid fa-eye mr-1.5"></i> Preview
+            </button>
+            <button (click)="handleDownloadForm(form.name)" class="px-3 py-1.5 text-sm font-medium text-purple-700 bg-purple-50 border border-purple-200 rounded-md hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors">
+              <i class="fa-solid fa-download mr-1.5"></i> Download
+            </button>
+          </div>
+        </div>
+      }
+    } @else {
+      <div class="text-center py-12 border-2 border-dashed border-gray-200 rounded-lg">
+        <i class="fa-solid fa-file-circle-xmark text-4xl text-gray-300"></i>
+        <h3 class="mt-4 text-lg font-semibold text-gray-700">No forms found</h3>
+        <p class="mt-1 text-sm text-gray-500">Your search and filter combination did not return any results.</p>
+      </div>
+    }
+  </div>
+</div>
+
+@if(showGenerateModal()) {
+  <app-generate-form-modal 
+    [form]="selectedForm()"
+    (close)="handleModalClose()" 
+    (generate)="handleFormGenerated()">
+  </app-generate-form-modal>
+}
+
+@if(showPreviewModal()) {
+  <app-preview-form-modal 
+    [formName]="selectedForm()!.name"
+    (close)="handleModalClose()">
+  </app-preview-form-modal>
+}
+
+@if(notification()) {
+  <app-notification 
+    [message]="notification()!.message" 
+    [type]="notification()!.type"
+    (close)="notification.set(null)">
+  </app-notification>
+}

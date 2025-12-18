@@ -1,0 +1,62 @@
+
+<div class="fixed inset-0 bg-black/50 z-40" (click)="close.emit()"></div>
+
+<div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-2xl z-50 w-full max-w-lg">
+  <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+    <h2 class="text-xl font-semibold text-gray-800">Generate Tax Form</h2>
+    <button (click)="close.emit()" class="text-gray-400 hover:text-gray-600">
+      <i class="fa-solid fa-xmark fa-lg"></i>
+    </button>
+  </div>
+  <div class="p-8">
+    <form (ngSubmit)="onGenerate()" #generateForm="ngForm" class="space-y-6">
+      <div>
+        <label for="form-select" class="block text-sm font-medium text-gray-700">Select Form</label>
+        <select id="form-select" name="form-select"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
+                [ngModel]="selectedFormName()"
+                (ngModelChange)="selectedFormName.set($event)"
+                [disabled]="form() !== null">
+          @for(formName of availableForms; track formName) {
+            <option [value]="formName">{{ formName }}</option>
+          }
+        </select>
+        @if(form()) {
+          <p class="mt-1 text-xs text-gray-500">Generating for a specific form. To generate a different one, close and use "Generate New Form".</p>
+        }
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="tax-year" class="block text-sm font-medium text-gray-700">Tax Year</label>
+          <input type="number" id="tax-year" name="tax-year"
+                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
+                 [ngModel]="taxYear()"
+                 (ngModelChange)="taxYear.set($event)">
+        </div>
+        <div>
+          <label for="entity-name" class="block text-sm font-medium text-gray-700">Entity Name</label>
+          <input type="text" id="entity-name" name="entity-name"
+                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
+                 [ngModel]="entityName()"
+                 (ngModelChange)="entityName.set($event)">
+        </div>
+      </div>
+      
+      <div class="pt-2 flex justify-end gap-3">
+        <button type="button" (click)="close.emit()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
+          Cancel
+        </button>
+        <button type="submit" [disabled]="isGenerating()" class="px-4 py-2 text-sm font-medium text-white bg-cyan-600 rounded-md shadow-sm hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 disabled:bg-cyan-400 disabled:cursor-not-allowed flex items-center justify-center w-32">
+          @if (isGenerating()) {
+            <i class="fa-solid fa-spinner fa-spin mr-2"></i>
+            <span>Generating...</span>
+          } @else {
+            <i class="fa-solid fa-cogs mr-2"></i>
+            <span>Generate</span>
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,5 @@
+{
+  "name": "Lumina Finance Dashboard",
+  "description": "An executive financial dashboard application for tracking key metrics, cash flow, budgets, and expenses. Built with Angular and Tailwind CSS.",
+  "requestFramePermissions": []
+}

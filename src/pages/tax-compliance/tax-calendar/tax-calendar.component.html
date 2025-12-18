@@ -1,0 +1,113 @@
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <!-- Main Calendar Content -->
+  <div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-sm">
+    <!-- Calendar Header & Filters -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+      <div class="flex items-center gap-2">
+        <button (click)="previousMonth()" title="Previous month" class="p-2 rounded-full hover:bg-gray-100 transition-colors">
+          <i class="fa-solid fa-chevron-left text-gray-600"></i>
+        </button>
+        <h2 class="text-xl font-semibold text-gray-700 w-40 text-center">
+          {{ currentDate() | date:'MMMM yyyy' }}
+        </h2>
+        <button (click)="nextMonth()" title="Next month" class="p-2 rounded-full hover:bg-gray-100 transition-colors">
+          <i class="fa-solid fa-chevron-right text-gray-600"></i>
+        </button>
+        <button (click)="goToToday()" class="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+          Today
+        </button>
+      </div>
+      <div class="flex items-center gap-2 w-full sm:w-auto">
+        <select class="border border-gray-300 rounded-md py-1.5 px-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500" [ngModel]="jurisdictionFilter()" (ngModelChange)="jurisdictionFilter.set($event)">
+            <option value="All">All Jurisdictions</option>
+            <option value="Federal">Federal</option>
+            <option value="State - CA">State - CA</option>
+            <option value="State - NY">State - NY</option>
+            <option value="International">International</option>
+        </select>
+         <select class="border border-gray-300 rounded-md py-1.5 px-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500" [ngModel]="taxTypeFilter()" (ngModelChange)="taxTypeFilter.set($event)">
+            <option value="All">All Tax Types</option>
+            <option value="Payroll Tax">Payroll Tax</option>
+            <option value="Sales Tax">Sales Tax</option>
+            <option value="Income Tax">Income Tax</option>
+        </select>
+        <select class="border border-gray-300 rounded-md py-1.5 px-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+            <option value="All">All Statuses</option>
+            <option value="Upcoming">Upcoming</option>
+            <option value="Overdue">Overdue</option>
+            <option value="Completed">Completed</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Calendar Grid -->
+    <div class="grid grid-cols-7 border-t border-l border-gray-200">
+      <!-- Days of the week -->
+      @for(day of daysOfWeek; track day) {
+        <div class="bg-gray-50 py-2 text-center text-xs font-medium text-gray-500 uppercase border-r border-b border-gray-200">
+          {{ day }}
+        </div>
+      }
+
+      <!-- Calendar Days -->
+      @for(day of calendarDays(); track day.date) {
+        <div class="relative min-h-[120px] p-2 border-r border-b border-gray-200 transition-colors" [class.bg-gray-50]="!day.isCurrentMonth">
+          <time [dateTime]="day.date.toISOString()"
+                class="text-sm"
+                [class.text-gray-400]="!day.isCurrentMonth"
+                [class.text-white]="day.isToday"
+                [class.bg-cyan-500]="day.isToday"
+                [class.w-7]="day.isToday"
+                [class.h-7]="day.isToday"
+                [class.rounded-full]="day.isToday"
+                [class.flex]="day.isToday"
+                [class.items-center]="day.isToday"
+                [class.justify-center]="day.isToday"
+                [class.font-semibold]="day.isToday">
+            {{ day.date.getDate() }}
+          </time>
+          @if(day.events.length > 0) {
+            <div class="mt-1 space-y-1">
+              @for(event of day.events; track event.title) {
+                <div (click)="handleEventClick(event, day.date)" class="text-xs text-white p-1.5 rounded-md truncate cursor-pointer hover:opacity-80 transition-opacity" [class]="getJurisdictionColor(event.jurisdiction)" [title]="event.title + ' (' + event.jurisdiction + ')'">
+                  {{ event.title }}
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Right Sidebar -->
+  <div class="lg:col-span-1 space-y-6">
+    <app-smart-alerts (alertClicked)="handleAlertClick($event)"></app-smart-alerts>
+    
+    <div class="bg-white p-6 rounded-lg shadow-sm">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">Integrations</h3>
+      <div class="space-y-4">
+        <div class="flex justify-between items-center">
+          <div>
+            <p class="font-medium text-gray-700">Connected Gov Portals</p>
+            <p class="text-sm text-gray-500">Auto-reminders {{ autoRemindersEnabled() ? 'enabled' : 'disabled' }}</p>
+          </div>
+          <div (click)="toggleAutoReminders()" class="w-11 h-6 rounded-full p-1 flex items-center cursor-pointer transition-colors" [class]="autoRemindersEnabled() ? 'bg-cyan-500' : 'bg-gray-300'">
+            <div class="w-4 h-4 bg-white rounded-full shadow-md transform transition-transform" [class.translate-x-5]="autoRemindersEnabled()"></div>
+          </div>
+        </div>
+         <button (click)="handleConnectPortal()" class="w-full mt-2 px-4 py-2 text-sm font-medium text-cyan-700 bg-cyan-50 border border-cyan-200 rounded-md hover:bg-cyan-100 transition-colors">
+            <i class="fa-solid fa-plus mr-2"></i>Connect New Portal
+          </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+@if(showConnectPortalModal()) {
+  <app-connect-portal-modal 
+    (close)="handlePortalModalClose()" 
+    (connect)="handlePortalConnectSuccess()">
+  </app-connect-portal-modal>
+}

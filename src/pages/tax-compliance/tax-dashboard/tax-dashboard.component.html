@@ -1,0 +1,116 @@
+
+<div class="space-y-8">
+  <!-- KPI Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <app-kpi-card-tax
+      type="deadline"
+      title="Upcoming Filing Deadline"
+      [value]="deadline | date:'MMM d, yyyy'"
+      subtitle="Federal Form 2290"
+      [countdown]="daysUntilDeadline"
+      accentColor="sky">
+    </app-kpi-card-tax>
+    <app-kpi-card-tax
+      type="liability"
+      title="Estimated Tax Liability"
+      value="$45,280.50"
+      subtitle="For Q3 2024"
+      ytdTotal="$120,400 YTD"
+      trend="up"
+      accentColor="purple">
+    </app-kpi-card-tax>
+    <app-kpi-card-tax
+      type="progress"
+      title="Filings Completed This Year"
+      value="28"
+      subtitle="out of 40 total"
+      [progress]="70"
+      accentColor="cyan">
+    </app-kpi-card-tax>
+  </div>
+
+  <!-- Charts & Calendar Section -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-1 bg-white p-6 rounded-lg shadow-sm">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">Tax Liability Breakdown</h3>
+      <app-tax-liability-chart></app-tax-liability-chart>
+    </div>
+    <div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-sm">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">Compliance Calendar & Alerts</h3>
+      <app-compliance-calendar-alerts></app-compliance-calendar-alerts>
+    </div>
+  </div>
+
+  <!-- Recent Activity & Suggestions Section -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-sm">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+        <h3 class="text-lg font-semibold text-gray-800">Recent Filing Activity</h3>
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <div class="relative flex-grow">
+            <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <input
+              type="text"
+              placeholder="Search..."
+              class="w-full pl-9 pr-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)">
+          </div>
+          <select class="border border-gray-300 rounded-md py-1.5 px-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+            <option>All</option>
+            <option>Submitted</option>
+            <option>Processing</option>
+            <option>Pending</option>
+          </select>
+        </div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50/70">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Form</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jurisdiction</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Period</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submitted</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            @for(filing of filteredFilings(); track filing.form + filing.period) {
+              <tr class="hover:bg-gray-50 cursor-pointer transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ filing.form }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ filing.jurisdiction }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ filing.period }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ filing.submitted }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                  <span class="px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full" [class]="getStatusClass(filing.status)">
+                    {{ filing.status }}
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-lg shadow-sm">
+       <h3 class="text-lg font-semibold text-gray-800 mb-4">Optimization Recommendations & Alerts</h3>
+       <div class="space-y-4">
+        <div (click)="handleAlertClick('Potential deductions missed')" class="flex items-start p-4 bg-pink-50 border-l-4 border-pink-400 rounded-r-lg cursor-pointer hover:bg-pink-100 transition-colors">
+            <i class="fa-solid fa-triangle-exclamation text-pink-500 mt-1"></i>
+            <div class="ml-3">
+              <p class="font-semibold text-gray-800">Potential deductions missed</p>
+              <p class="text-sm text-gray-600">Review recent transactions in the Expense module for un-categorized tax-deductible items.</p>
+            </div>
+          </div>
+          <div (click)="handleAlertClick('EU VAT rules update')" class="flex items-start p-4 bg-sky-50 border-l-4 border-sky-400 rounded-r-lg cursor-pointer hover:bg-sky-100 transition-colors">
+            <i class="fa-solid fa-info-circle text-sky-500 mt-1"></i>
+            <div class="ml-3">
+              <p class="font-semibold text-gray-800">EU VAT rules update</p>
+              <p class="text-sm text-gray-600">New regulations are now available. Review and configure the new EU VAT rules for compliance.</p>
+            </div>
+          </div>
+       </div>
+    </div>
+  </div>
+</div>
