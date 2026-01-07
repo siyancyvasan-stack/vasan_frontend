@@ -1,6 +1,6 @@
 
 <div class="space-y-4">
-  @for(item of data; track item.category) {
+  @for(item of data(); track item.category) {
     <div class="grid grid-cols-[80px_1fr] items-center gap-4">
       <span class="text-sm font-medium text-gray-600 text-right">{{ item.category }}</span>
       <div class="w-full bg-gray-200 rounded-full h-5 relative">

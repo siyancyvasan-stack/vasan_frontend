@@ -1,0 +1,11 @@
+<div class="flex flex-col md:flex-row items-center justify-center gap-6">
+  <div #chart class="w-[220px] h-[220px]"></div>
+  <div class="space-y-3">
+    @for(item of data(); track item.label) {
+      <div class="flex items-center">
+        <span class="w-3.5 h-3.5 rounded-full mr-3" [style.background-color]="item.color"></span>
+        <span class="text-sm text-gray-600">{{ item.label }}</span>
+      </div>
+    }
+  </div>
+</div>

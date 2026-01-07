@@ -1,22 +1,59 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ExpenseService, ExpenseClaim } from '../../../services/expense.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-my-expenses',
   standalone: true,
   templateUrl: './my-expenses.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule]
+  imports: [CommonModule, FormsModule]
 })
 export class MyExpensesComponent {
-  myExpenses = [
-    { date: 'July 30, 2024', merchant: 'United Airlines', category: 'Travel', amount: '$452.10', status: 'Pending' },
-    { date: 'July 29, 2024', merchant: 'The Capital Grille', category: 'Meals & Entertainment', amount: '$189.50', status: 'Approved' },
-    { date: 'July 25, 2024', merchant: 'Staples', category: 'Office Supplies', amount: '$65.20', status: 'Reimbursed' },
-    { date: 'July 22, 2024', merchant: 'AWS Services', category: 'Software & Subscriptions', amount: '$1,200.00', status: 'Reimbursed' },
-    { date: 'July 21, 2024', merchant: 'Hotel Marriott', category: 'Travel', amount: '$350.00', status: 'Rejected' },
-  ];
+  private expenseService = inject(ExpenseService);
+  private authService = inject(AuthService);
 
+  // --- State Signals for Filtering ---
+  searchQuery = signal('');
+  statusFilter = signal('All');
+  yearFilter = signal('All');
+
+  myExpenses = computed(() => {
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser) return [];
+    
+    return this.expenseService.getExpenses().filter(
+        claim => claim.employeeName === currentUser.name
+    );
+  });
+
+  // --- Computed Signals ---
+  availableYears = computed(() => {
+    const years = this.myExpenses().map(exp => new Date(exp.date).getFullYear());
+    const uniqueSortedYears = Array.from(new Set(years)).sort((a: number, b: number) => b - a);
+    return ['All', ...uniqueSortedYears.map(String)];
+  });
+
+  filteredExpenses = computed(() => {
+    const query = this.searchQuery().toLowerCase();
+    const status = this.statusFilter();
+    const year = this.yearFilter();
+
+    return this.myExpenses().filter(expense => {
+      const expenseYear = new Date(expense.date).getFullYear().toString();
+
+      const matchesQuery = query === '' || expense.merchant.toLowerCase().includes(query);
+      const matchesStatus = status === 'All' || expense.status === status;
+      const matchesYear = year === 'All' || expenseYear === year;
+
+      return matchesQuery && matchesStatus && matchesYear;
+    });
+  });
+
+  // --- UI Methods ---
   getStatusClass(status: string) {
     switch (status) {
       case 'Approved': return 'bg-sky-100 text-sky-800';
@@ -25,5 +62,28 @@ export class MyExpensesComponent {
       case 'Rejected': return 'bg-pink-100 text-pink-800';
       default: return 'bg-gray-100 text-gray-800';
     }
+  }
+
+  // --- Action Methods ---
+  onDownload(expense: ExpenseClaim) {
+    const content = `
+      Expense Receipt
+      -----------------
+      ID: ${expense.id}
+      Date: ${expense.date}
+      Merchant: ${expense.merchant}
+      Category: ${expense.category}
+      Amount: ${expense.amount} ${expense.currency}
+      Status: ${expense.status}
+    `;
+    const blob = new Blob([content.trim()], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `expense-${expense.id}-${expense.merchant.replace(/\s+/g, '_')}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
   }
 }

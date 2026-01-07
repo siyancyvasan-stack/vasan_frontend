@@ -1,6 +1,7 @@
 
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
+import { roleGuard } from './guards/role.guard';
 
 export const APP_ROUTES: Routes = [
   {
@@ -18,11 +19,15 @@ export const APP_ROUTES: Routes = [
         },
         {
             path: 'general-ledger',
-            loadComponent: () => import('./pages/general-ledger/general-ledger.component').then(c => c.GeneralLedgerComponent)
+            loadComponent: () => import('./pages/general-ledger/general-ledger.component').then(c => c.GeneralLedgerComponent),
+            canActivate: [roleGuard],
+            data: { roles: ['Admin', 'Finance Manager'] }
         },
         {
             path: 'tax-compliance',
             loadComponent: () => import('./pages/tax-compliance/tax-layout.component').then(m => m.TaxLayoutComponent),
+            canActivate: [roleGuard],
+            data: { roles: ['Finance Manager', 'Employee'] },
             children: [
                 {
                     path: 'dashboard',
@@ -50,6 +55,8 @@ export const APP_ROUTES: Routes = [
         {
             path: 'payroll',
             loadComponent: () => import('./pages/payroll/payroll-layout.component').then(m => m.PayrollLayoutComponent),
+            canActivate: [roleGuard],
+            data: { roles: ['Finance Manager', 'Employee'] },
             children: [
                 {
                     path: 'dashboard',
@@ -61,7 +68,9 @@ export const APP_ROUTES: Routes = [
                 },
                 {
                     path: 'run-payroll',
-                    loadComponent: () => import('./pages/payroll/run-payroll/run-payroll.component').then(m => m.RunPayrollComponent)
+                    loadComponent: () => import('./pages/payroll/run-payroll/run-payroll.component').then(m => m.RunPayrollComponent),
+                    canActivate: [roleGuard],
+                    data: { roles: ['Finance Manager'] }
                 },
                 {
                     path: 'history',
@@ -77,6 +86,8 @@ export const APP_ROUTES: Routes = [
         {
             path: 'expense-management',
             loadComponent: () => import('./pages/expense-management/expense-layout.component').then(m => m.ExpenseLayoutComponent),
+            canActivate: [roleGuard],
+            data: { roles: ['Finance Manager', 'Employee'] },
             children: [
                 {
                     path: 'dashboard',
@@ -92,7 +103,9 @@ export const APP_ROUTES: Routes = [
                 },
                 {
                     path: 'approvals',
-                    loadComponent: () => import('./pages/expense-management/approval-queue/approval-queue.component').then(m => m.ApprovalQueueComponent)
+                    loadComponent: () => import('./pages/expense-management/approval-queue/approval-queue.component').then(m => m.ApprovalQueueComponent),
+                    canActivate: [roleGuard],
+                    data: { roles: ['Finance Manager'] }
                 },
                 {
                     path: 'cards',
@@ -105,6 +118,12 @@ export const APP_ROUTES: Routes = [
                 }
             ]
         },
+         {
+            path: 'user-management',
+            loadComponent: () => import('./pages/user-management/user-management.component').then(c => c.UserManagementComponent),
+            canActivate: [roleGuard],
+            data: { roles: ['Admin'] }
+        },
         {
             path: '',
             redirectTo: 'dashboard',
@@ -114,6 +133,6 @@ export const APP_ROUTES: Routes = [
   },
   {
     path: '**',
-    redirectTo: 'login'
+    redirectTo: 'dashboard'
   }
 ];

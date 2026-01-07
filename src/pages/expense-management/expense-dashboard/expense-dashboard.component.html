@@ -1,76 +1,95 @@
 
 <div class="space-y-8">
+  <!-- Header -->
+  <div>
+    <h1 class="text-3xl font-bold text-gray-800">Expense Dashboard</h1>
+    <p class="text-gray-500 mt-1">Overview of expense metrics and pending items.</p>
+  </div>
+
   <!-- KPI Cards -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    <div class="bg-white p-6 rounded-lg shadow-md">
-      <div class="flex items-center">
-        <div class="flex-shrink-0 bg-purple-100 rounded-md p-3">
-          <i class="fa-solid fa-hourglass-half text-purple-500 text-xl"></i>
+    <!-- Pending Expenses Card -->
+    <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-purple-500">
+      <div class="flex justify-between items-start">
+        <div>
+          <p class="text-sm font-medium text-gray-500 uppercase">Pending Expenses</p>
+          <p class="text-3xl font-bold text-gray-800 mt-2">{{ pendingExpenses().count }}</p>
+          <p class="text-sm text-gray-600 font-mono">{{ pendingExpenses().amount | currency:'INR' }}</p>
         </div>
-        <div class="ml-4">
-          <p class="text-sm font-medium text-gray-500">Pending Approval</p>
-          <p class="text-2xl font-bold text-gray-800">$1,450.75</p>
-          <p class="text-xs text-gray-400">12 expense reports</p>
-        </div>
-      </div>
-    </div>
-    <div class="bg-white p-6 rounded-lg shadow-md">
-      <div class="flex items-center">
-        <div class="flex-shrink-0 bg-cyan-100 rounded-md p-3">
-          <i class="fa-solid fa-wallet text-cyan-500 text-xl"></i>
-        </div>
-        <div class="ml-4">
-          <p class="text-sm font-medium text-gray-500">Total Expenses (This Month)</p>
-          <p class="text-2xl font-bold text-gray-800">$12,834.00</p>
-          <p class="text-xs text-gray-400">August 2024</p>
+        <div class="w-10 h-10 flex items-center justify-center bg-purple-100 rounded-lg">
+          <i class="fa-solid fa-clock text-purple-500 text-xl"></i>
         </div>
       </div>
+       <button (click)="onNewExpense()" class="mt-4 w-full px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg shadow-sm hover:bg-purple-700 transition-colors flex items-center justify-center gap-2">
+        <i class="fa-solid fa-plus"></i> New Expense
+      </button>
     </div>
-    <div class="bg-white p-6 rounded-lg shadow-md">
-      <div class="flex items-center">
-        <div class="flex-shrink-0 bg-pink-100 rounded-md p-3">
+
+    <!-- Total Monthly Spend Card -->
+    <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-cyan-500">
+      <div class="flex justify-between items-start">
+        <div>
+          <p class="text-sm font-medium text-gray-500 uppercase">Total Monthly Spend</p>
+          <p class="text-3xl font-bold text-gray-800 mt-2">{{ totalMonthlySpend() | currency:'INR' }}</p>
+          <p class="text-sm text-green-600">+5.2% vs last month</p>
+        </div>
+         <div class="w-10 h-10 flex items-center justify-center bg-cyan-100 rounded-lg">
+          <i class="fa-solid fa-chart-line text-cyan-500 text-xl"></i>
+        </div>
+      </div>
+      <div class="mt-4">
+        <app-total-spend-chart [data]="totalSpendChartData()"></app-total-spend-chart>
+      </div>
+    </div>
+
+    <!-- Policy Violations Card -->
+    <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-pink-500">
+      <div class="flex justify-between items-start">
+        <div>
+          <p class="text-sm font-medium text-gray-500 uppercase">Policy Violations</p>
+          <p class="text-3xl font-bold text-gray-800 mt-2">{{ policyViolations() }}</p>
+          <p class="text-sm text-gray-600">Review required</p>
+        </div>
+         <div class="w-10 h-10 flex items-center justify-center bg-pink-100 rounded-lg">
           <i class="fa-solid fa-triangle-exclamation text-pink-500 text-xl"></i>
         </div>
-        <div class="ml-4">
-          <p class="text-sm font-medium text-gray-500">Policy Violations</p>
-          <p class="text-2xl font-bold text-gray-800">3</p>
-          <p class="text-xs text-gray-400">Require review</p>
-        </div>
       </div>
+       <button (click)="onViewViolations()" class="mt-4 w-full px-4 py-2 text-sm font-medium text-pink-700 bg-pink-100 rounded-lg shadow-sm hover:bg-pink-200 transition-colors flex items-center justify-center gap-2">
+         View Violations
+      </button>
     </div>
   </div>
 
-  <!-- Recent Expense Submissions -->
+  <!-- Recent Expense Claims -->
   <div class="bg-white p-6 rounded-lg shadow-md">
-    <div class="flex justify-between items-center mb-4">
-      <h2 class="text-lg font-semibold text-gray-700">Recent Expense Submissions</h2>
-      <button class="px-4 py-2 text-sm font-medium text-white bg-cyan-600 rounded-md hover:bg-cyan-700">
-        Submit New Expense
-      </button>
-    </div>
+    <h2 class="text-lg font-semibold text-gray-700 mb-4">Recent Expense Claims</h2>
     <div class="overflow-x-auto">
       <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
           <tr>
             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-            <th scope="col" class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Merchant</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
-          @for(expense of recentExpenses; track expense.date + expense.employee) {
-            <tr>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ expense.date }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ expense.employee }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ expense.amount }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm">
-                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" [class]="getStatusClass(expense.status)">
-                  {{ expense.status }}
+          @for(claim of recentClaims(); track claim.date + claim.merchant) {
+            <tr class="hover:bg-gray-50/70 transition-colors">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ claim.date }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">{{ claim.merchant }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ claim.category }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-mono text-gray-700">{{ claim.amount | currency:'INR' }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
+                <span class="px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full" [class]="getStatusClass(claim.status)">
+                  {{ claim.status }}
                 </span>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+              <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-2">
+                <button (click)="onViewClaim(claim)" class="px-3 py-1 text-xs font-medium text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors">View</button>
+                <button (click)="onEditClaim(claim)" class="px-3 py-1 text-xs font-medium text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors">Edit</button>
               </td>
             </tr>
           }
@@ -78,4 +97,28 @@
       </table>
     </div>
   </div>
+
+  <!-- Expense Analytics -->
+   <div class="bg-white p-6 rounded-lg shadow-md">
+    <h2 class="text-lg font-semibold text-gray-700 mb-4">Expense Analytics</h2>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+      <div>
+        <h3 class="font-medium text-center text-gray-600 mb-2">Monthly Trends</h3>
+        <app-expense-bar-chart [data]="expenseBarChartData()"></app-expense-bar-chart>
+      </div>
+      <div>
+        <h3 class="font-medium text-center text-gray-600 mb-2">Spend by Category</h3>
+        <app-expense-pie-chart [data]="expensePieChartData()"></app-expense-pie-chart>
+      </div>
+    </div>
+  </div>
 </div>
+
+<!-- Modals -->
+@if(showViolationsModal()) {
+  <app-policy-violations-modal (close)="closeModals()"></app-policy-violations-modal>
+}
+
+@if(showDetailsModal() && selectedClaim()) {
+  <app-expense-details-modal [expense]="selectedClaim()!" (close)="closeModals()"></app-expense-details-modal>
+}

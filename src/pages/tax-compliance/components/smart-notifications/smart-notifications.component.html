@@ -1,0 +1,38 @@
+<div class="absolute top-full right-0 mt-2 w-80 bg-white rounded-lg shadow-2xl border border-gray-200/80 z-50 animate-fade-in-down">
+  <div class="p-4 border-b flex justify-between items-center">
+    <h3 class="font-semibold text-gray-800">Smart Notifications</h3>
+    @if(notifications().length > 0) {
+      <span class="text-xs font-bold text-cyan-600 bg-cyan-100 px-2 py-0.5 rounded-full">{{ notifications().length }} New</span>
+    }
+  </div>
+  <div class="max-h-80 overflow-y-auto">
+    @if(notifications().length > 0) {
+      <ul>
+        @for(notification of notifications(); track notification.title) {
+          <li class="p-4 flex items-start gap-3 hover:bg-gray-50/70 border-b border-gray-100 last:border-b-0">
+            <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-pink-100 rounded-full mt-0.5">
+              <i class="fa-solid fa-triangle-exclamation text-pink-500"></i>
+            </div>
+            <div>
+              <p class="font-medium text-sm text-gray-800 leading-tight">{{ notification.title }}</p>
+              <p class="text-xs text-gray-500 mt-0.5">{{ notification.subtitle }}</p>
+            </div>
+          </li>
+        }
+      </ul>
+    } @else {
+      <div class="p-8 text-center">
+          <i class="fa-regular fa-bell-slash text-4xl text-gray-300"></i>
+          <p class="mt-4 text-sm font-medium text-gray-700">All caught up!</p>
+          <p class="text-xs text-gray-500">You have no new notifications.</p>
+      </div>
+    }
+  </div>
+  @if(notifications().length > 0) {
+    <div class="p-2 bg-gray-50/70 rounded-b-lg">
+      <button (click)="dismissAll.emit()" class="w-full py-1.5 text-sm font-medium text-cyan-600 hover:text-cyan-800 hover:bg-cyan-100/50 rounded-md transition-colors">
+        Dismiss All
+      </button>
+    </div>
+  }
+</div>

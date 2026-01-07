@@ -7,7 +7,7 @@ import { SidebarComponent } from './sidebar.component';
   selector: 'app-layout',
   standalone: true,
   template: `
-    <div class="flex h-screen bg-gray-100">
+    <div class="flex h-screen bg-white">
       <app-sidebar></app-sidebar>
       <main class="flex-1 overflow-y-auto">
         <router-outlet></router-outlet>

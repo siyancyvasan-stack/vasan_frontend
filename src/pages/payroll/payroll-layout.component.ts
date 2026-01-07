@@ -52,6 +52,9 @@ export class PayrollLayoutComponent {
   private router = inject(Router);
 
   startPayrollRun(): void {
-    this.router.navigate(['/payroll/run-payroll']);
+    // Add a timestamp to ensure the navigation event is always unique,
+    // triggering query param changes even if the user clicks the button multiple times.
+    const timestamp = new Date().getTime();
+    this.router.navigate(['/payroll/run-payroll'], { queryParams: { reset: true, t: timestamp } });
   }
 }

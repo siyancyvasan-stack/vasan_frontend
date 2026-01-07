@@ -27,19 +27,19 @@ interface RecentFiling {
   ]
 })
 export class TaxDashboardComponent {
-  deadline = new Date('2024-08-31');
-  daysUntilDeadline = Math.ceil((this.deadline.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+  // Updated data to match screenshot
+  deadline = new Date('2025-12-27T00:00:00');
+  daysUntilDeadline = -10; // Hardcoded to match screenshot
 
   searchQuery = signal('');
   statusFilter = signal('All');
 
   allFilings: RecentFiling[] = [
-    { form: 'Form 941', jurisdiction: 'Federal (IRS)', period: 'Q2 2024', submitted: 'July 15, 2024', status: 'Submitted' },
-    { form: 'CA Form DE 9', jurisdiction: 'California (EDD)', period: 'Q2 2024', submitted: 'July 12, 2024', status: 'Submitted' },
-    { form: 'NY Form NYS-45', jurisdiction: 'New York (DTF)', period: 'Q2 2024', submitted: 'July 10, 2024', status: 'Processing' },
-    { form: 'Corp Tax', jurisdiction: 'Germany', period: '2023', submitted: 'July 5, 2024', status: 'Processing' },
-    { form: 'Sales Tax', jurisdiction: 'California', period: 'Sep \'23', submitted: 'June 28, 2024', status: 'Pending' },
-    { form: 'Form 1120', jurisdiction: 'Federal (IRS)', period: 'Annual 2023', submitted: 'April 15, 2024', status: 'Submitted' },
+    { form: 'Form 941', jurisdiction: 'Federal (IRS)', period: 'Q2 2024', submitted: '2026-01-11', status: 'Processing' },
+    { form: 'Form 940', jurisdiction: 'Federal (IRS)', period: 'Q2 2024', submitted: '2026-01-04', status: 'Pending' },
+    { form: 'GST Filing (India)', jurisdiction: 'Sri Lanka IRD', period: 'Q2 2024', submitted: '2026-01-03', status: 'Pending' },
+    { form: 'Payroll Tax (US)', jurisdiction: 'Federal (IRS)', period: 'Q2 2024', submitted: '2026-01-05', status: 'Pending' },
+    { form: 'VAT Return (UK)', jurisdiction: 'UK HMRC', period: 'Q2 2024', submitted: '2025-12-27', status: 'Pending' },
   ];
 
   filteredFilings = computed(() => {

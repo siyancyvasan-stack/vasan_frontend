@@ -1,6 +1,13 @@
-import { ChangeDetectionStrategy, Component, ElementRef, AfterViewInit, viewChild } from '@angular/core';
+
+import { ChangeDetectionStrategy, Component, ElementRef, AfterViewInit, viewChild, input, effect } from '@angular/core';
 import * as d3 from 'd3';
 import { CommonModule } from '@angular/common';
+
+export interface ExpenseData {
+  category: string;
+  value: number;
+  color: string;
+}
 
 @Component({
   selector: 'app-expense-chart',
@@ -11,13 +18,15 @@ import { CommonModule } from '@angular/common';
 })
 export class ExpenseChartComponent implements AfterViewInit {
   chartContainer = viewChild<ElementRef<HTMLDivElement>>('chart');
+  data = input.required<ExpenseData[]>();
 
-  data = [
-    { category: 'Operations', value: 45, color: '#8B5CF6' },
-    { category: 'IT Infrastructure', value: 25, color: '#38BDF8' },
-    { category: 'Marketing', value: 20, color: '#22D3EE' },
-    { category: 'Human Resources', value: 10, color: '#F472B6' },
-  ];
+  constructor() {
+    effect(() => {
+      if (this.chartContainer() && this.data()) {
+        this.createChart();
+      }
+    });
+  }
 
   ngAfterViewInit(): void {
     // Defer chart creation to the next browser repaint cycle. This ensures that
@@ -31,6 +40,9 @@ export class ExpenseChartComponent implements AfterViewInit {
   }
 
   private createChart(): void {
+    const chartData = this.data();
+    if (!chartData || chartData.length === 0) return;
+
     const el = this.chartContainer()!.nativeElement;
     const width = 200;
     const height = 200;
@@ -47,7 +59,7 @@ export class ExpenseChartComponent implements AfterViewInit {
       .attr('transform', `translate(${width / 2},${height / 2})`);
 
     const pie = d3.pie<any>().value(d => d.value).sort(null);
-    const data_ready = pie(this.data);
+    const data_ready = pie(chartData);
 
     const arc = d3.arc()
       .innerRadius(radius * 0.6)

@@ -1,6 +1,12 @@
 
-import { ChangeDetectionStrategy, Component, ElementRef, AfterViewInit, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, AfterViewInit, viewChild, input, effect } from '@angular/core';
 import * as d3 from 'd3';
+
+interface ChartData {
+  label: string;
+  inflow: number;
+  outflow: number;
+}
 
 @Component({
   selector: 'app-cash-flow-chart',
@@ -10,16 +16,17 @@ import * as d3 from 'd3';
 })
 export class CashFlowChartComponent implements AfterViewInit {
   chartContainer = viewChild<ElementRef<HTMLDivElement>>('chart');
+  data = input.required<ChartData[]>();
 
-  private data = [
-    { day: 'Mon', inflow: 5000, outflow: 3000 },
-    { day: 'Tue', inflow: 6000, outflow: 2500 },
-    { day: 'Wed', inflow: 5500, outflow: 4500 },
-    { day: 'Thu', inflow: 7500, outflow: 3000 },
-    { day: 'Fri', inflow: 8000, outflow: 5000 },
-    { day: 'Sat', inflow: 7000, outflow: 4500 },
-    { day: 'Sun', inflow: 7200, outflow: 5500 },
-  ];
+  constructor() {
+    effect(() => {
+      // This effect will run whenever the input data changes.
+      // We also check if the chart container is ready before trying to draw.
+      if (this.chartContainer() && this.data()) {
+        this.createChart();
+      }
+    });
+  }
 
   ngAfterViewInit(): void {
     // Defer chart creation to the next browser repaint cycle. This ensures that
@@ -33,6 +40,9 @@ export class CashFlowChartComponent implements AfterViewInit {
   }
 
   private createChart(): void {
+    const chartData = this.data();
+    if (!chartData || chartData.length === 0) return;
+
     const el = this.chartContainer()!.nativeElement;
     const margin = { top: 20, right: 20, bottom: 30, left: 40 };
     const width = el.clientWidth - margin.left - margin.right;
@@ -48,11 +58,12 @@ export class CashFlowChartComponent implements AfterViewInit {
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
     const x = d3.scalePoint()
-      .domain(this.data.map(d => d.day))
+      .domain(chartData.map(d => d.label))
       .range([0, width]);
 
+    const yMax = d3.max(chartData, d => d.inflow) || 0;
     const y = d3.scaleLinear()
-      .domain([0, 8000])
+      .domain([0, yMax * 1.1]) // Add some padding to the top
       .range([height, 0]);
 
     svg.append('g')
@@ -61,72 +72,72 @@ export class CashFlowChartComponent implements AfterViewInit {
       .call(g => g.select(".domain").remove());
 
     svg.append('g')
-      .call(d3.axisLeft(y).ticks(8).tickFormat(d3.format("~s")).tickSize(-width))
+      .call(d3.axisLeft(y).ticks(5).tickFormat(d3.format("~s")).tickSize(-width))
       .call(g => g.select(".domain").remove())
       .call(g => g.selectAll(".tick line").attr("stroke-opacity", 0.1));
 
     const inflowArea = d3.area<any>()
-      .x(d => x(d.day)!)
+      .x(d => x(d.label)!)
       .y0(height)
       .y1(d => y(d.inflow))
       .curve(d3.curveMonotoneX);
 
     svg.append('path')
-      .datum(this.data)
+      .datum(chartData)
       .attr('fill', '#67e8f9')
       .attr('opacity', 0.4)
       .attr('d', inflowArea);
 
     const inflowLine = d3.line<any>()
-      .x(d => x(d.day)!)
+      .x(d => x(d.label)!)
       .y(d => y(d.inflow))
       .curve(d3.curveMonotoneX);
       
     svg.append('path')
-      .datum(this.data)
+      .datum(chartData)
       .attr('fill', 'none')
       .attr('stroke', '#06b6d4')
       .attr('stroke-width', 2.5)
       .attr('d', inflowLine);
 
     const outflowArea = d3.area<any>()
-      .x(d => x(d.day)!)
+      .x(d => x(d.label)!)
       .y0(height)
       .y1(d => y(d.outflow))
       .curve(d3.curveMonotoneX);
 
     svg.append('path')
-      .datum(this.data)
+      .datum(chartData)
       .attr('fill', '#ddd6fe')
       .attr('opacity', 0.5)
       .attr('d', outflowArea);
 
     const outflowLine = d3.line<any>()
-      .x(d => x(d.day)!)
+      .x(d => x(d.label)!)
       .y(d => y(d.outflow))
       .curve(d3.curveMonotoneX);
 
     svg.append('path')
-      .datum(this.data)
+      .datum(chartData)
       .attr('fill', 'none')
       .attr('stroke', '#9333ea')
       .attr('stroke-width', 2.5)
       .attr('d', outflowLine);
 
     svg.selectAll(".inflow-dot")
-      .data(this.data)
+      .data(chartData)
       .enter().append("circle")
       .attr("class", "inflow-dot")
-      .attr("cx", d => x(d.day)!)
+      .attr("cx", d => x(d.label)!)
       .attr("cy", d => y(d.inflow))
       .attr("r", 4)
       .attr("fill", "#06b6d4");
 
     svg.selectAll(".outflow-dot")
-      .data(this.data)
+      .data(chartData)
       .enter().append("circle")
       .attr("class", "outflow-dot")
-      .attr("cx", d => x(d.day)!)
+      .attr("cx", d => x(d.label)!)
       .attr("cy", d => y(d.outflow))
       .attr("r", 4)
       .attr("fill", '#9333ea');

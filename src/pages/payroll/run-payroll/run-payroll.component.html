@@ -1,65 +1,197 @@
-
-<div class="bg-white p-6 rounded-lg shadow-md">
-  <h2 class="text-xl font-semibold text-gray-800 mb-6">Run Payroll for August 1 - August 15, 2024</h2>
-
-  <!-- Step Indicator -->
-  <div class="mb-8">
-    <ol class="flex items-center w-full">
-      @for(step of steps; track step.number; let i = $index) {
-        <li class="flex w-full items-center" [class.text-cyan-600]="currentStep() >= step.number" [class.after:border-cyan-600]="currentStep() > step.number">
-          <div class="flex items-center">
-            <span class="w-10 h-10 flex items-center justify-center rounded-full border-2" [class.bg-cyan-600]="currentStep() >= step.number" [class.text-white]="currentStep() >= step.number" [class.border-cyan-600]="currentStep() >= step.number" [class.border-purple-200]="currentStep() < step.number">
-              {{ step.number }}
-            </span>
-            <span class="ml-2 font-medium" [class.text-purple-500]="currentStep() < step.number">{{ step.title }}</span>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+  <!-- Left Column: Payroll Run Form and Summary -->
+  <div class="lg:col-span-2 space-y-8">
+    <!-- Payroll Run Form Card -->
+    <div class="bg-white p-6 rounded-lg shadow-md">
+      <div class="flex justify-between items-center">
+        <div>
+          <h2 class="text-xl font-bold text-gray-800 mb-1">Payroll Run</h2>
+          <p class="text-sm text-gray-500">Configure and execute payroll for your organization</p>
+        </div>
+         @if(payrollState() !== 'initial') {
+            <div class="flex items-center gap-4">
+               @switch (payrollState()) {
+                @case ('initial') { <span class="px-3 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">Draft</span> }
+                @case ('calculated') { <span class="px-3 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">Draft</span> }
+                @case ('pendingApproval') { <span class="px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 animate-pulse">Pending Approval</span> }
+                @case ('approved') { <span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Approved</span> }
+                @case ('rejected') { <span class="px-3 py-1 text-xs font-semibold rounded-full bg-pink-100 text-pink-800">Rejected</span> }
+              }
+              <button (click)="resetPayrollRun()" class="px-3 py-1.5 text-xs font-medium text-cyan-700 bg-cyan-50 border border-cyan-200 rounded-md hover:bg-cyan-100 transition-colors">
+                <i class="fa-solid fa-rotate-left mr-1.5"></i>Start New Run
+              </button>
+            </div>
+        }
+      </div>
+      
+      <div class="border-t border-gray-200 pt-6 mt-6">
+        <h3 class="text-lg font-semibold text-gray-700 mb-4">Start Payroll Run</h3>
+        <fieldset [disabled]="payrollState() !== 'initial'">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label for="pay-period" class="block text-sm font-medium text-gray-600 mb-1">Pay Period</label>
+              <select id="pay-period" [ngModel]="payPeriod()" (ngModelChange)="payPeriod.set($event)" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 transition disabled:bg-gray-100">
+                <option value="" disabled>Select period</option>
+                @for(period of formOptions().payPeriods; track period) {
+                  <option [value]="period">{{ period }}</option>
+                }
+              </select>
+            </div>
+            <div>
+              <label for="country" class="block text-sm font-medium text-gray-600 mb-1">Country / Region</label>
+              <select id="country" [ngModel]="country()" (ngModelChange)="country.set($event); onCountryChange($event)" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 transition disabled:bg-gray-100">
+                @for(c of formOptions().countries; track c.name) {
+                  <option [value]="c.name">{{ c.name }}</option>
+                }
+              </select>
+            </div>
+            <div>
+              <label for="currency" class="block text-sm font-medium text-gray-600 mb-1">Currency</label>
+              <select id="currency" [ngModel]="currency()" (ngModelChange)="currency.set($event)" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 transition disabled:bg-gray-100">
+                 @for(curr of formOptions().currencies; track curr) {
+                  <option [value]="curr">{{ curr }}</option>
+                }
+              </select>
+            </div>
+            <div>
+              <label for="salary-structure" class="block text-sm font-medium text-gray-600 mb-1">Salary Structure</label>
+              <select id="salary-structure" [ngModel]="salaryStructure()" (ngModelChange)="salaryStructure.set($event)" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 transition disabled:bg-gray-100">
+                @for(s of formOptions().structures; track s) {
+                  <option [value]="s">{{ s }}</option>
+                }
+              </select>
+            </div>
           </div>
-          @if(i < steps.length - 1) {
-            <div class="flex-auto border-t-2 transition duration-500 ease-in-out mx-4" [class.border-cyan-600]="currentStep() > step.number" [class.border-purple-200]="currentStep() <= step.number"></div>
-          }
-        </li>
-      }
-    </ol>
-  </div>
+        </fieldset>
+        <div class="mt-8 flex items-center gap-4">
+          <button (click)="calculatePayroll()" [disabled]="payrollState() !== 'initial' || !payPeriod() || !country()" class="px-6 py-2.5 text-sm font-semibold text-white bg-blue-800 rounded-lg shadow-sm hover:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition flex items-center justify-center w-44 disabled:bg-blue-400 disabled:cursor-not-allowed">
+            @if (payrollState() === 'calculating') {
+              <i class="fa-solid fa-spinner fa-spin mr-2"></i>
+              <span>Calculating...</span>
+            } @else {
+              <i class="fa-solid fa-calculator mr-2"></i>
+              <span>Calculate Payroll</span>
+            }
+          </button>
+          <button class="px-6 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transition">
+            Save as Draft
+          </button>
+        </div>
+      </div>
+    </div>
 
-  <!-- Step Content -->
-  <div class="min-h-[300px] border border-gray-200 rounded-lg p-6">
-    @switch (currentStep()) {
-      @case (1) {
-        <div>
-          <h3 class="text-lg font-semibold text-gray-700">Step 1: Timesheets</h3>
-          <p class="mt-2 text-gray-600">Review and approve all employee timesheets for this pay period. 4 pending approvals.</p>
+    <!-- Computation Summary Card -->
+    @if ((payrollState() !== 'initial' && payrollState() !== 'calculating') && computationSummary(); as summary) {
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h3 class="text-lg font-semibold text-gray-700 mb-4">Computation Summary</h3>
+        <div class="space-y-3 border-t border-gray-200 pt-4">
+          <div class="flex justify-between items-center text-gray-700">
+            <span>Gross Salary</span>
+            <span class="font-mono text-gray-800">{{ summary.grossSalary | currency:currency():'symbol':'1.2-2' }}</span>
+          </div>
+          <div class="flex justify-between items-center text-gray-700">
+            <span>Allowances</span>
+            <span class="font-mono text-green-600 font-medium">+ {{ summary.allowances | currency:currency():'symbol':'1.2-2' }}</span>
+          </div>
+          <div class="flex justify-between items-center text-gray-700">
+            <span>Statutory Deductions</span>
+            <span class="font-mono text-red-600 font-medium">- {{ summary.statutoryDeductions | currency:currency():'symbol':'1.2-2' }}</span>
+          </div>
+          <div class="flex justify-between items-center text-gray-700">
+            <span>Other Deductions</span>
+            <span class="font-mono text-red-600 font-medium">- {{ summary.otherDeductions | currency:currency():'symbol':'1.2-2' }}</span>
+          </div>
         </div>
-      }
-      @case (2) {
-        <div>
-          <h3 class="text-lg font-semibold text-gray-700">Step 2: Review Payroll</h3>
-          <p class="mt-2 text-gray-600">Review the payroll summary, including gross pay, taxes, deductions, and net pay.</p>
+        <div class="mt-4 pt-4 border-t-2 border-gray-300 flex justify-between items-center font-bold text-lg text-cyan-800 bg-cyan-50/50 -mx-6 px-6 py-3">
+          <span>Net Pay</span>
+          <span class="font-mono">{{ summary.netPay | currency:currency():'symbol':'1.2-2' }}</span>
         </div>
-      }
-      @case (3) {
-        <div>
-          <h3 class="text-lg font-semibold text-gray-700">Step 3: Confirmation</h3>
-          <p class="mt-2 text-gray-600">Confirm the total payroll cost and funding details.</p>
-        </div>
-      }
-      @case (4) {
-        <div>
-          <h3 class="text-lg font-semibold text-gray-700">Step 4: Submit</h3>
-          <p class="mt-2 text-gray-600">You are ready to submit the payroll. Once submitted, changes cannot be made.</p>
-        </div>
-      }
+      </div>
     }
   </div>
 
-  <!-- Navigation Buttons -->
-  <div class="mt-8 flex justify-between">
-    <button (click)="previousStep()" [disabled]="currentStep() === 1"
-            class="px-6 py-2 text-sm font-medium text-purple-700 bg-purple-100 rounded-md hover:bg-purple-200 disabled:opacity-50 disabled:cursor-not-allowed">
-      Previous
-    </button>
-    <button (click)="nextStep()" [disabled]="currentStep() === steps.length"
-            class="px-6 py-2 text-sm font-medium text-white bg-cyan-600 rounded-md hover:bg-cyan-700 disabled:opacity-50 disabled:cursor-not-allowed">
-      Next
-    </button>
-  </div>
+  <!-- Right Column: Details and Actions -->
+  @if ((payrollState() !== 'initial' && payrollState() !== 'calculating') && runDetails(); as details) {
+    <div class="lg:col-span-1 space-y-8">
+      <!-- Run Details Card -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h3 class="text-md font-semibold text-gray-700 mb-4 uppercase tracking-wider">Run Details</h3>
+        <div class="space-y-4">
+          <div class="flex items-center gap-4">
+            <div class="w-10 h-10 flex items-center justify-center bg-blue-100 rounded-lg">
+              <i class="fa-solid fa-calendar-day text-blue-500 text-lg"></i>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500">Pay Date</p>
+              <p class="font-semibold text-gray-800">{{ details.payDate | date:'MMM d, yyyy' }}</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="w-10 h-10 flex items-center justify-center bg-purple-100 rounded-lg">
+              <i class="fa-solid fa-users text-purple-500 text-lg"></i>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500">Employees</p>
+              <p class="font-semibold text-gray-800">{{ details.employees }} employees</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="w-10 h-10 flex items-center justify-center bg-pink-100 rounded-lg">
+              <i class="fa-solid fa-dollar-sign text-pink-500 text-lg"></i>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500">Total Cost</p>
+              <p class="font-semibold text-gray-800 font-mono">{{ details.totalCost | currency:currency():'symbol':'1.2-2' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions Card -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h3 class="text-md font-semibold text-gray-700 mb-4 uppercase tracking-wider">Actions</h3>
+        <div class="space-y-3">
+          @if (authService.hasRole(['Finance Manager'])) {
+            <button (click)="approvePayroll()" 
+                    [disabled]="payrollState() !== 'pendingApproval' || payrollState() === 'approving'"
+                    class="w-full px-4 py-3 text-sm font-semibold text-white bg-green-500 rounded-lg shadow-sm hover:bg-green-600 transition flex items-center justify-center gap-2 disabled:bg-green-300 disabled:cursor-not-allowed">
+              @if(payrollState() === 'approving') {
+                <i class="fa-solid fa-spinner fa-spin"></i> Approving...
+              } @else {
+                <i class="fa-solid fa-check-circle"></i> Approve Payroll
+              }
+            </button>
+            <button (click)="rejectPayroll()" 
+                    [disabled]="payrollState() !== 'pendingApproval'"
+                    class="w-full px-4 py-3 text-sm font-semibold text-white bg-pink-500 rounded-lg shadow-sm hover:bg-pink-600 transition flex items-center justify-center gap-2 disabled:bg-pink-300 disabled:cursor-not-allowed">
+              <i class="fa-solid fa-times-circle"></i> Reject
+            </button>
+          } @else {
+             <button (click)="sendForApproval()" 
+                    [disabled]="payrollState() === 'pendingApproval' || payrollState() === 'approved' || payrollState() === 'sending' || payrollState() === 'rejected'"
+                    class="w-full px-4 py-3 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 transition flex items-center justify-center gap-2 disabled:bg-gray-200 disabled:cursor-not-allowed">
+              @if(payrollState() === 'sending') {
+                 <i class="fa-solid fa-spinner fa-spin"></i> Sending...
+              } @else {
+                 <i class="fa-solid fa-paper-plane"></i> Send for Approval
+              }
+            </button>
+          }
+          <button (click)="downloadPayslips()" 
+                  [disabled]="payrollState() !== 'approved'"
+                  class="w-full px-4 py-3 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 transition flex items-center justify-center gap-2 disabled:bg-gray-200 disabled:cursor-not-allowed">
+            <i class="fa-solid fa-download"></i> Download Payslips
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 </div>
+
+@if(notification()) {
+  <app-notification 
+    [message]="notification()!.message" 
+    [type]="notification()!.type"
+    (close)="notification.set(null)">
+  </app-notification>
+}

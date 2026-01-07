@@ -3,19 +3,54 @@
   <!-- Header -->
   <header class="flex justify-between items-center mb-8">
     <h1 class="text-3xl font-bold text-gray-800">Executive Dashboard</h1>
-    <div class="flex items-center gap-2 bg-white border border-gray-300 rounded-md px-3 py-1.5 text-sm">
-      <i class="fa-regular fa-calendar text-gray-500"></i>
-      <span>FY 2024 • Period 03</span>
-      <i class="fa-solid fa-chevron-down text-gray-500 ml-2"></i>
+    <div class="relative">
+      <button (click)="togglePeriodDropdown()" class="flex items-center gap-2 bg-white border border-gray-300 rounded-md px-3 py-1.5 text-sm hover:bg-gray-50 transition-colors">
+        <i class="fa-regular fa-calendar text-gray-500"></i>
+        <span>{{ selectedPeriod() }}</span>
+        <i class="fa-solid fa-chevron-down text-gray-500 ml-2 transition-transform" [class.rotate-180]="isPeriodDropdownOpen()"></i>
+      </button>
+      @if(isPeriodDropdownOpen()) {
+        <div class="absolute top-full right-0 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg z-10">
+          <ul>
+            @for(option of periodOptions; track option) {
+              <li>
+                <a (click)="selectPeriod(option)" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">{{ option }}</a>
+              </li>
+            }
+          </ul>
+        </div>
+      }
     </div>
   </header>
 
   <!-- KPI Cards -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <app-kpi-card title="CASH ON HAND" value="$1,250,400" change="+12.5%" changeType="positive" icon="fa-regular fa-envelope"></app-kpi-card>
-    <app-kpi-card title="ACCOUNTS RECEIVABLE" value="$450,200" subtitle="32 invoices pending" change="0.0%" changeType="neutral" icon="fa-regular fa-folder"></app-kpi-card>
-    <app-kpi-card title="ACCOUNTS PAYABLE" value="$128,500" subtitle="Due within 7 days" change="-5.2%" changeType="negative" icon="fa-solid fa-tag"></app-kpi-card>
-    <app-kpi-card title="NET PROFIT (YTD)" value="$840,000" change="+8.4%" changeType="positive" icon="fa-solid fa-arrow-trend-up"></app-kpi-card>
+    <app-kpi-card title="CASH ON HAND" 
+      [value]="currentPeriodData().kpis.cashOnHand.value" 
+      [change]="currentPeriodData().kpis.cashOnHand.change" 
+      [changeType]="currentPeriodData().kpis.cashOnHand.changeType" 
+      icon="fa-regular fa-envelope">
+    </app-kpi-card>
+    <app-kpi-card title="ACCOUNTS RECEIVABLE" 
+      [value]="currentPeriodData().kpis.accountsReceivable.value" 
+      [subtitle]="currentPeriodData().kpis.accountsReceivable.subtitle" 
+      [change]="currentPeriodData().kpis.accountsReceivable.change" 
+      [changeType]="currentPeriodData().kpis.accountsReceivable.changeType" 
+      icon="fa-regular fa-folder">
+    </app-kpi-card>
+    <app-kpi-card title="ACCOUNTS PAYABLE" 
+      [value]="currentPeriodData().kpis.accountsPayable.value" 
+      [subtitle]="currentPeriodData().kpis.accountsPayable.subtitle" 
+      [change]="currentPeriodData().kpis.accountsPayable.change" 
+      [changeType]="currentPeriodData().kpis.accountsPayable.changeType" 
+      icon="fa-solid fa-tag">
+    </app-kpi-card>
+    <app-kpi-card title="NET PROFIT (YTD)" 
+      [value]="currentPeriodData().kpis.netProfit.value" 
+      [change]="currentPeriodData().kpis.netProfit.change" 
+      [changeType]="currentPeriodData().kpis.netProfit.changeType" 
+      icon="fa-solid fa-arrow-trend-up">
+    </app-kpi-card>
   </div>
 
   <!-- Main Content Grid -->
@@ -26,17 +61,30 @@
       <div class="bg-white p-6 rounded-lg shadow-md">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-lg font-semibold text-gray-700">Cash Flow Forecast</h2>
-          <div class="flex items-center gap-2 border border-gray-300 rounded-md px-3 py-1 text-sm">
-            <span>This Week</span>
-            <i class="fa-solid fa-chevron-down text-gray-500 ml-2"></i>
+          <div class="relative">
+            <button (click)="toggleTimeframeDropdown()" class="flex items-center gap-2 border border-gray-300 rounded-md px-3 py-1 text-sm hover:bg-gray-50 transition-colors">
+              <span>{{ selectedTimeframe() }}</span>
+              <i class="fa-solid fa-chevron-down text-gray-500 ml-2 transition-transform" [class.rotate-180]="isTimeframeDropdownOpen()"></i>
+            </button>
+            @if(isTimeframeDropdownOpen()) {
+              <div class="absolute top-full right-0 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                <ul>
+                  @for(option of timeframeOptions; track option) {
+                    <li>
+                      <a (click)="selectTimeframe(option)" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">{{ option }}</a>
+                    </li>
+                  }
+                </ul>
+              </div>
+            }
           </div>
         </div>
-        <app-cash-flow-chart></app-cash-flow-chart>
+        <app-cash-flow-chart [data]="cashFlowChartData()"></app-cash-flow-chart>
       </div>
       <!-- Budget vs Actual -->
       <div class="bg-white p-6 rounded-lg shadow-md">
         <h2 class="text-lg font-semibold text-gray-700 mb-4">Budget vs Actual (FP&A)</h2>
-        <app-budget-chart></app-budget-chart>
+        <app-budget-chart [data]="currentPeriodData().budgetData"></app-budget-chart>
       </div>
     </div>
 
@@ -75,7 +123,7 @@
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-lg font-semibold text-gray-700">Expense Breakdown</h2>
         </div>
-        <app-expense-chart></app-expense-chart>
+        <app-expense-chart [data]="currentPeriodData().expenseData"></app-expense-chart>
       </div>
     </div>
   </div>

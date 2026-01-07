@@ -1,4 +1,3 @@
-
 import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -87,8 +86,32 @@ export class TaxFormsComponent {
   }
 
   handleDownloadForm(formName: string): void {
-    console.log(`Downloading ${formName}...`);
-    this.showNotification(`Download for ${formName} has started.`, 'info');
+    // Simulate downloading a PDF. This is a base64 representation of a simple PDF.
+    const pdfBase64 = "JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PC9UeXBlIC9DYXRhbG9nL1BhZ2VzIDIgMCBSPj4KZW5kb2JqCjIgMCBvYmoKPDwvVHlwZSAvUGFnZXMvQ291bnQgMS9LaWRzIFszIDAgUl0gPj4KZW5kb2JqCjMgMCBvYmoKPDwvVHlwZSAvUGFnZS9QYXJlbnQgMiAwIFIvUmVzb3VyY2VzIDw8L0ZvbnQgPDwvRjEgNCAwIFI+Pj4+L01lZGlhQm94IFswIDAgNjEyIDc5Ml0vQ29udGVudHMgNSAwIFI+PgplbmRvYmoKNCAwIG9iago8PC9UeXBlIC9Gb250L1N1YnR5cGUgL1R5cGUxL0Jhc2VGb250IC9IZWx2ZXRpY2E+PgplbmRvYmoKNSAwIG9iago8PC9MZW5ndGggNzE+PgdzdHJlYW0KQkQKICAvRjEgMTYgVGYKICAxMDAgNzAwIFRkCiAgKFRoaXMgaXMgYSBkdW1teSBQREYgZm9yICcgKyBmb3JtTmFtZSArICcpIFRqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDE1IDAwMDAwIG4gCjAwMDAwMDAwNjMgMDAwMDAwIG4gCjAwMDAwMDAxMTIgMDAwMDAwIG4gCjAwMDAwMDAyNDggMDAwMDAwIG4gCjAwMDAwMDAzMjAgMDAwMDAwIG4gCnRyYWlsZXIKPDwvU2l6ZSA2L1Jvb3QgMSAwIFI+PgpzdGFydHhyZWYKNDM0CiUlRU9GCg==";
+    
+    try {
+      const byteCharacters = atob(pdfBase64);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'application/pdf' });
+      
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${formName.replace(/\s+/g, '_')}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      this.showNotification(`Download for ${formName} has started.`, 'info');
+    } catch (e) {
+      console.error('Error decoding base64 string or creating PDF:', e);
+      this.showNotification(`Could not initiate download for ${formName}.`, 'info'); // Use 'info' for errors as well
+    }
   }
 
   handleModalClose(): void {
